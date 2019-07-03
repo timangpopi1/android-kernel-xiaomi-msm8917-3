@@ -52,6 +52,7 @@
 			next-level-cache = <&L2_1>;
 			#cooling-cells = <2>;
 			dynamic-power-coefficient = <100>;
+			operating-points-v2 = <&cpu0_opp_table>;
 			L2_1: l2-cache {
 			      compatible = "arm,arch-cache";
 			      cache-level = <2>;
@@ -80,6 +81,7 @@
 			next-level-cache = <&L2_1>;
 			#cooling-cells = <2>;
 			dynamic-power-coefficient = <100>;
+			operating-points-v2 = <&cpu0_opp_table>;
 			L1_I_101: l1-icache {
 				compatible = "arm,arch-cache";
 				qcom,dump-size = <0x8800>;
@@ -101,6 +103,7 @@
 			next-level-cache = <&L2_1>;
 			#cooling-cells = <2>;
 			dynamic-power-coefficient = <100>;
+			operating-points-v2 = <&cpu0_opp_table>;
 			L1_I_102: l1-icache {
 				compatible = "arm,arch-cache";
 				qcom,dump-size = <0x8800>;
@@ -122,6 +125,7 @@
 			next-level-cache = <&L2_1>;
 			#cooling-cells = <2>;
 			dynamic-power-coefficient = <100>;
+			operating-points-v2 = <&cpu0_opp_table>;
 			L1_I_103: l1-icache {
 				compatible = "arm,arch-cache";
 				qcom,dump-size = <0x8800>;

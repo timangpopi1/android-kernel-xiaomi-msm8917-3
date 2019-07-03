@@ -1092,6 +1092,53 @@
 		};
 	};
 
+	cpu0_opp_table: opp_table0 {
+	    compatible = "operating-points-v2";
+	    opp-shared;
+
+		opp@2016000000 {
+			opp-hz = /bits/ 64 <2016000000>;
+			opp-microvolt = <9550000 9050000 9550000>;
+			clock-latency-ns = <300000>;
+		};
+
+		opp@1958400000 {
+			opp-hz = /bits/ 64 <1958400000>;
+			opp-microvolt = <9300000 8800000 9300000>;
+			clock-latency-ns = <310000>;
+		};
+
+		opp@1804800000 {
+			opp-hz = /bits/ 64 <1804800000>;
+			opp-microvolt = <8550000 8050000 8550000>;
+			clock-latency-ns = <290000>;
+		};
+
+		opp@1689600000 {
+			opp-hz = /bits/ 64 <1689600000>;
+			opp-microvolt = <7950000 7500000 8000000>;
+			clock-latency-ns = <300000>;
+		};
+
+		opp@1401600000 {
+			opp-hz = /bits/ 64 <1401600000>;
+			opp-microvolt = <7450000 7000000 7500000>;
+			clock-latency-ns = <310000>;
+		};
+
+		opp@1036800000 {
+			opp-hz = /bits/ 64 <1036800000>;
+			opp-microvolt = <6750000 6300000 6800000>;
+			clock-latency-ns = <290000>;
+		};
+
+		opp@652800000 {
+			opp-hz = /bits/ 64 <652800000>;
+			opp-microvolt = <6500000 6000000 6500000>;
+			clock-latency-ns = <300000>;
+		};
+	};
+
 	rpm_bus: qcom,rpm-smd {
 		compatible = "qcom,rpm-smd";
 		rpm-channel-name = "rpm_requests";
