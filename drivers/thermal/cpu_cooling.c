@@ -549,13 +549,6 @@ __cpufreq_cooling_register(struct device_node *np,
 		return ERR_PTR(-EINVAL);
 	}
 
-	i = cpufreq_frequency_get_table(policy);
-	if (!i) {
-		pr_debug("%s: CPUFreq table not found or has no valid entries\n",
-			 __func__);
-		return ERR_PTR(-ENODEV);
-	}
-
 	cpufreq_cdev = kzalloc(sizeof(*cpufreq_cdev), GFP_KERNEL);
 	if (!cpufreq_cdev)
 		return ERR_PTR(-ENOMEM);
