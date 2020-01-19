@@ -18,5 +18,3 @@ obj-$(CONFIG_POWERSUSPEND)	+= powersuspend.o
 obj-$(CONFIG_SUSPEND)		+= wakeup_reason.o
 
 obj-$(CONFIG_SUSPEND)	+= wakeup_reason.o
-
-obj-$(CONFIG_ENERGY_MODEL)	+= energy_model.o
