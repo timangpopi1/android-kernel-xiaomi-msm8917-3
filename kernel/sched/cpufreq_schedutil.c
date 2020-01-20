@@ -17,6 +17,7 @@
 #include <trace/events/power.h>
 #include <linux/sched.h>
 #include <linux/cpuset.h>
+#include <linux/energy_model.h>
 
 #include "sched.h"
 #include "tune.h"
