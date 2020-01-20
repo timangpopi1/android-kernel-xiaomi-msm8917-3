@@ -136,7 +136,7 @@ static void estimate_pid_constants(struct thermal_zone_device *tz,
 				   int control_temp, bool force)
 {
 	int ret;
-	unsigned long switch_on_temp;
+	int switch_on_temp;
 	u32 temperature_threshold;
 
 	ret = tz->ops->get_trip_temp(tz, trip_switch_on, &switch_on_temp);
@@ -551,7 +551,7 @@ static int power_allocator_bind(struct thermal_zone_device *tz)
 {
 	int ret;
 	struct power_allocator_params *params;
-	unsigned long control_temp;
+	int control_temp;
 
 	params = kzalloc(sizeof(*params), GFP_KERNEL);
 	if (!params)
@@ -612,7 +612,7 @@ static void power_allocator_unbind(struct thermal_zone_device *tz)
 static int power_allocator_throttle(struct thermal_zone_device *tz, int trip)
 {
 	int ret;
-	unsigned long switch_on_temp, control_temp;
+	int switch_on_temp, control_temp;
 	struct power_allocator_params *params = tz->governor_data;
 
 	/*
