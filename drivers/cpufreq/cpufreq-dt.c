@@ -361,8 +361,6 @@ static int cpufreq_init(struct cpufreq_policy *policy)
 
 	of_node_put(np);
 
-	dev_pm_opp_of_register_em(policy->cpus);
-
 	return 0;
 
 out_free_cpufreq_table:
@@ -409,8 +407,8 @@ static void cpufreq_ready(struct cpufreq_policy *policy)
 	 * thermal DT code takes care of matching them.
 	 */
 	if (of_find_property(np, "#cooling-cells", NULL)) {
-		priv->cdev = of_cpufreq_cooling_register(policy);
-
+		priv->cdev = of_cpufreq_cooling_register(np,
+							 policy->related_cpus);
 		if (IS_ERR(priv->cdev)) {
 			dev_err(priv->cpu_dev,
 				"running cpufreq without cooling device: %ld\n",
