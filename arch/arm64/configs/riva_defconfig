@@ -748,6 +748,9 @@ CONFIG_CGROUP_MEM_RES_CTLR_SWAP=y
 CONFIG_DUMP_ALL_STACKS=y
 # CONFIG_FIRE_WATCHDOG is not set
 
+# CPU frequency scaling drivers
+CONFIG_CPUFREQ_DT=y
+
 #
 # Graphics support
 #
