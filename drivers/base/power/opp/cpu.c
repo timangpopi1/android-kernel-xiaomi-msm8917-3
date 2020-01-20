@@ -20,7 +20,6 @@
 #include <linux/export.h>
 #include <linux/of.h>
 #include <linux/slab.h>
-#include <linux/energy_model.h>
 
 #include "opp.h"
 
