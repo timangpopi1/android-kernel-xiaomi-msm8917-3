@@ -1303,9 +1303,6 @@ static int proc_do_submiturb(struct usb_dev_state *ps, struct usbdevfs_urb *uurb
 	if (uurb->type == USBDEVFS_URB_TYPE_ISO)
 		mask |= USBDEVFS_URB_ISO_ASAP;
 
-	if (uurb->flags & ~mask)
-			return -EINVAL;
-
 	if ((unsigned int)uurb->buffer_length >= USBFS_XFER_MAX)
 		return -EINVAL;
 	if (uurb->buffer_length > 0 && !uurb->buffer)
