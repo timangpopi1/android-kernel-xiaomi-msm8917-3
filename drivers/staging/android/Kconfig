@@ -163,7 +163,7 @@ source "drivers/staging/android/fiq_debugger/Kconfig"
 
 config ANDROID_SIMPLE_LMK
 	bool "Simple Android Low Memory Killer"
-	depends on !MEMCG
+	depends on !ANDROID_LOW_MEMORY_KILLER && !MEMCG
 	---help---
 	  This is a complete low memory killer solution for Android that is
 	  small and simple. Processes are killed according to the priorities
