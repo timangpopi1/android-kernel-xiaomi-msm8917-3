@@ -6007,8 +6007,7 @@ static void build_perf_domains(const struct cpumask *cpu_map)
 			goto free;
 		gov = policy->governor;
 		cpufreq_cpu_put(policy);
-		/* Fix it. */
-		if (!gov) {
+		if (gov != &cpufreq_gov_schedutil) {
 			if (rd->pd)
 				pr_warn("rd %*pbl: Disabling EAS, schedutil is mandatory\n",
 						cpumask_pr_args(cpu_map));
