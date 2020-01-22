@@ -5880,9 +5880,7 @@ sd_parent_degenerate(struct sched_domain *sd, struct sched_domain *parent)
 	return 1;
 }
 
-#if defined(CONFIG_ENERGY_MODEL) && defined(CONFIG_CPU_FREQ_GOV_SCHEDUTIL)
-DEFINE_MUTEX(sched_energy_mutex);
-
+#ifdef CONFIG_ENERGY_MODEL
 static void free_pd(struct perf_domain *pd)
 {
 	struct perf_domain *tmp;
@@ -5951,16 +5949,12 @@ static void destroy_perf_domain_rcu(struct rcu_head *rp)
 	free_pd(pd);
 }
 
-extern struct cpufreq_governor cpufreq_gov_schedutil;
-
 static void build_perf_domains(const struct cpumask *cpu_map)
 {
-	int i, nr_pd = 0, nr_cs = 0, nr_cpus = cpumask_weight(cpu_map);
 	struct perf_domain *pd = NULL, *tmp;
 	int cpu = cpumask_first(cpu_map);
 	struct root_domain *rd = cpu_rq(cpu)->rd;
-	struct cpufreq_policy *policy;
-	struct cpufreq_governor *gov;
+	int i;
 
 	for_each_cpu(i, cpu_map) {
 		/* Skip already covered CPUs. */
@@ -5994,7 +5988,7 @@ free:
 }
 #else
 static void free_pd(struct perf_domain *pd) { }
-#endif /* CONFIG_ENERGY_MODEL && CONFIG_CPU_FREQ_GOV_SCHEDUTIL*/
+#endif /* CONFIG_ENERGY_MODEL */
 
 static void free_rootdomain(struct rcu_head *rcu)
 {
@@ -7461,10 +7455,10 @@ match2:
 		;
 	}
 
-#if defined(CONFIG_ENERGY_MODEL) && defined(CONFIG_CPU_FREQ_GOV_SCHEDUTIL)
+#ifdef CONFIG_ENERGY_MODEL
 	/* Build perf. domains: */
 	for (i = 0; i < ndoms_new; i++) {
-		for (j = 0; j < n && !sched_avg_update; j++) {
+		for (j = 0; j < n; j++) {
 			if (cpumask_equal(doms_new[i], doms_cur[j]) &&
 			    cpu_rq(cpumask_first(doms_cur[j]))->rd->pd)
 				goto match3;
