@@ -6832,7 +6832,22 @@ static void nohz_balancer_kick(bool only_update);
 static unsigned long cpu_util_next(int cpu, struct task_struct *p, int dst_cpu)
 {
 	struct cfs_rq *cfs_rq = &cpu_rq(cpu)->cfs;
-	unsigned long util_est, util = READ_ONCE(cfs_rq->avg.util_avg);
+	unsigned long util;
+
+#ifdef CONFIG_SCHED_WALT
+	if (!walt_disabled && sysctl_sched_use_walt_cpu_util) {
+		/*
+		 * Since WALT doesn't have blocked util, there is no need to
+		 * remove the task contribution during wake-up. Just add it to
+		 * the destination CPU.
+		 */
+		util = cpu_util(cpu);
+		if (cpu == dst_cpu)
+			util += task_util(p);
+
+		return util;
+	}
+#endif
 
 	/*
 	 * If @p migrates from @cpu to another, remove its contribution. Or,
@@ -6840,25 +6855,11 @@ static unsigned long cpu_util_next(int cpu, struct task_struct *p, int dst_cpu)
 	 * the other cases, @cpu is not impacted by the migration, so the
 	 * util_avg should already be correct.
 	 */
+	util = READ_ONCE(cfs_rq->avg.util_avg);
 	if (task_cpu(p) == cpu && dst_cpu != cpu)
-		sub_positive(&util, task_util(p));
+		sub_positive(&util, p->se.avg.util_avg);
 	else if (task_cpu(p) != cpu && dst_cpu == cpu)
-		util += task_util(p);
-
-	if (sched_feat(UTIL_EST)) {
-		util_est = READ_ONCE(cfs_rq->avg.util_est.enqueued);
-
-		/*
-		 * During wake-up, the task isn't enqueued yet and doesn't
-		 * appear in the cfs_rq->avg.util_est.enqueued of any rq,
-		 * so just add it (if needed) to "simulate" what will be
-		 * cpu_util() after the task has been enqueued.
-		 */
-		if (dst_cpu == cpu)
-			util_est += _task_util_est(p);
-
-		util = max(util, util_est);
-	}
+		util += p->se.avg.util_avg;
 
 	return min(util, capacity_orig_of(cpu));
 }
