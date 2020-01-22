@@ -6832,22 +6832,7 @@ static void nohz_balancer_kick(bool only_update);
 static unsigned long cpu_util_next(int cpu, struct task_struct *p, int dst_cpu)
 {
 	struct cfs_rq *cfs_rq = &cpu_rq(cpu)->cfs;
-	unsigned long util;
-
-#ifdef CONFIG_SCHED_WALT
-	if (!walt_disabled && sysctl_sched_use_walt_cpu_util) {
-		/*
-		 * Since WALT doesn't have blocked util, there is no need to
-		 * remove the task contribution during wake-up. Just add it to
-		 * the destination CPU.
-		 */
-		util = cpu_util(cpu);
-		if (cpu == dst_cpu)
-			util += task_util(p);
-
-		return util;
-	}
-#endif
+	unsigned long util_est, util = READ_ONCE(cfs_rq->avg.util_avg);
 
 	/*
 	 * If @p migrates from @cpu to another, remove its contribution. Or,
@@ -6855,11 +6840,25 @@ static unsigned long cpu_util_next(int cpu, struct task_struct *p, int dst_cpu)
 	 * the other cases, @cpu is not impacted by the migration, so the
 	 * util_avg should already be correct.
 	 */
-	util = READ_ONCE(cfs_rq->avg.util_avg);
 	if (task_cpu(p) == cpu && dst_cpu != cpu)
-		sub_positive(&util, p->se.avg.util_avg);
+		sub_positive(&util, task_util(p));
 	else if (task_cpu(p) != cpu && dst_cpu == cpu)
-		util += p->se.avg.util_avg;
+		util += task_util(p);
+
+	if (sched_feat(UTIL_EST)) {
+		util_est = READ_ONCE(cfs_rq->avg.util_est.enqueued);
+
+		/*
+		 * During wake-up, the task isn't enqueued yet and doesn't
+		 * appear in the cfs_rq->avg.util_est.enqueued of any rq,
+		 * so just add it (if needed) to "simulate" what will be
+		 * cpu_util() after the task has been enqueued.
+		 */
+		if (dst_cpu == cpu)
+			util_est += _task_util_est(p);
+
+		util = max(util, util_est);
+	}
 
 	return min(util, capacity_orig_of(cpu));
 }
@@ -7097,9 +7096,7 @@ select_task_rq_fair(struct task_struct *p, int prev_cpu, int sd_flag, int wake_f
 	}
 
 	if (energy_aware()) {
-		rcu_read_lock();
 		new_cpu = find_energy_efficient_cpu(p, prev_cpu);
-		rcu_read_unlock();
 		if (new_cpu >= 0)
 			return new_cpu;
 		new_cpu = prev_cpu;
@@ -9663,13 +9660,22 @@ out_all_pinned:
 	sd->nr_balance_failed = 0;
 
 out_one_pinned:
+	ld_moved = 0;
+
+	/*
+	 * idle_balance() disregards balance intervals, so we could repeatedly
+	 * reach this code, which would lead to balance_interval skyrocketting
+	 * in a short amount of time. Skip the balance_interval increase logic
+	 * to avoid that.
+	 */
+	if (env.idle == CPU_NEWLY_IDLE)
+		goto out;
+
 	/* tune up the balancing interval */
 	if (((env.flags & LBF_ALL_PINNED) &&
 			sd->balance_interval < MAX_PINNED_INTERVAL) ||
 			(sd->balance_interval < sd->max_interval))
 		sd->balance_interval *= 2;
-
-	ld_moved = 0;
 out:
 	return ld_moved;
 }
